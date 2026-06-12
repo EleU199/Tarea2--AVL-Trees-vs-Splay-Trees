@@ -1,0 +1,6 @@
+# Ejecutable generado
+t2cpp.exe
+
+# Resultados generados por los experimentos
+results/*
+!results/.gitkeep
