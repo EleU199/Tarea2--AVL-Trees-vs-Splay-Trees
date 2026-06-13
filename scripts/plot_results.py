@@ -36,13 +36,11 @@ def load_csv_if_exists(path: Path) -> Optional[pd.DataFrame]:
     if not path.exists():
         print(f"[plot] No existe: {path}")
         return None
-
     return pd.read_csv(path)
 
 
 def validate_columns(df: pd.DataFrame, required_columns: set[str], csv_name: str) -> None:
     missing = required_columns - set(df.columns)
-
     if missing:
         raise ValueError(f"Faltan columnas en {csv_name}: {sorted(missing)}")
 
@@ -79,7 +77,6 @@ def plot_metric_by_scenario(
 
         for tree, tree_group in group.groupby("tree"):
             tree_group = tree_group.sort_values("n")
-
             plt.plot(
                 tree_group["n"],
                 tree_group[metric],
@@ -111,7 +108,6 @@ def plot_all_scenarios_for_each_tree(
 
         for scenario in sorted_scenarios(tree_group):
             scenario_group = tree_group[tree_group["scenario"] == scenario].sort_values("n")
-
             plt.plot(
                 scenario_group["n"],
                 scenario_group[metric],
@@ -132,7 +128,6 @@ def plot_all_scenarios_for_each_tree(
 
 def plot_base_results(base_csv: Path, search_dir: Path, insert_dir: Path) -> None:
     df = load_csv_if_exists(base_csv)
-
     if df is None:
         return
 
@@ -146,19 +141,15 @@ def plot_base_results(base_csv: Path, search_dir: Path, insert_dir: Path) -> Non
         "avg_insert_ns",
         "avg_search_ns",
     }
-
     validate_columns(df, required_columns, str(base_csv))
 
-    # =========================
-    # Gráficos de búsqueda
-    # =========================
-
+    # Búsqueda
     plot_metric_by_scenario(
         df=df,
         output_dir=search_dir,
         metric="avg_search_ns",
         ylabel="Tiempo promedio por búsqueda (ns)",
-        filename_prefix="busqueda_promedio",
+        filename_prefix="busqueda_promedio_base",
         title_prefix="Tiempos de búsqueda — promedio por búsqueda",
     )
 
@@ -167,7 +158,7 @@ def plot_base_results(base_csv: Path, search_dir: Path, insert_dir: Path) -> Non
         output_dir=search_dir,
         metric="search_time_ms",
         ylabel="Tiempo total de búsqueda (ms)",
-        filename_prefix="busqueda_total",
+        filename_prefix="busqueda_total_base",
         title_prefix="Tiempos de búsqueda — tiempo total",
     )
 
@@ -176,29 +167,17 @@ def plot_base_results(base_csv: Path, search_dir: Path, insert_dir: Path) -> Non
         output_dir=search_dir,
         metric="avg_search_ns",
         ylabel="Tiempo promedio por búsqueda (ns)",
-        filename_prefix="busqueda_promedio",
+        filename_prefix="busqueda_promedio_base",
         title_prefix="Tiempos de búsqueda — comparación de escenarios",
     )
 
-    plot_all_scenarios_for_each_tree(
-        df=df,
-        output_dir=search_dir,
-        metric="search_time_ms",
-        ylabel="Tiempo total de búsqueda (ms)",
-        filename_prefix="busqueda_total",
-        title_prefix="Tiempos de búsqueda — comparación de escenarios",
-    )
-
-    # =========================
-    # Gráficos de inserción
-    # =========================
-
+    # Inserción
     plot_metric_by_scenario(
         df=df,
         output_dir=insert_dir,
         metric="avg_insert_ns",
         ylabel="Tiempo promedio por inserción (ns)",
-        filename_prefix="insercion_promedio",
+        filename_prefix="insercion_promedio_base",
         title_prefix="Tiempos de inserción — promedio por inserción",
     )
 
@@ -207,7 +186,7 @@ def plot_base_results(base_csv: Path, search_dir: Path, insert_dir: Path) -> Non
         output_dir=insert_dir,
         metric="insert_time_ms",
         ylabel="Tiempo total de inserción (ms)",
-        filename_prefix="insercion_total",
+        filename_prefix="insercion_total_base",
         title_prefix="Tiempos de inserción — tiempo total",
     )
 
@@ -216,26 +195,15 @@ def plot_base_results(base_csv: Path, search_dir: Path, insert_dir: Path) -> Non
         output_dir=insert_dir,
         metric="avg_insert_ns",
         ylabel="Tiempo promedio por inserción (ns)",
-        filename_prefix="insercion_promedio",
+        filename_prefix="insercion_promedio_base",
         title_prefix="Tiempos de inserción — comparación de escenarios",
     )
 
-    plot_all_scenarios_for_each_tree(
-        df=df,
-        output_dir=insert_dir,
-        metric="insert_time_ms",
-        ylabel="Tiempo total de inserción (ms)",
-        filename_prefix="insercion_total",
-        title_prefix="Tiempos de inserción — comparación de escenarios",
-    )
-
-    print(f"[plot] Gráficos de búsqueda guardados en: {search_dir}")
-    print(f"[plot] Gráficos de inserción guardados en: {insert_dir}")
+    print(f"[plot] Gráficos base listos.")
 
 
 def plot_search_blocks(blocks_csv: Path, search_dir: Path) -> None:
     df = load_csv_if_exists(blocks_csv)
-
     if df is None:
         return
 
@@ -249,7 +217,6 @@ def plot_search_blocks(blocks_csv: Path, search_dir: Path) -> None:
         "block_size",
         "avg_search_ns",
     }
-
     validate_columns(df, required_columns, str(blocks_csv))
 
     for scenario in sorted_scenarios(df):
@@ -262,7 +229,6 @@ def plot_search_blocks(blocks_csv: Path, search_dir: Path) -> None:
 
             for tree, tree_group in group.groupby("tree"):
                 tree_group = tree_group.sort_values("block_index")
-
                 plt.plot(
                     tree_group["block_index"],
                     tree_group["avg_search_ns"],
@@ -281,12 +247,7 @@ def plot_search_blocks(blocks_csv: Path, search_dir: Path) -> None:
             output_path = search_dir / f"busqueda_bloques__{scenario}__n_{n}.png"
             save_plot(output_path)
 
-    plot_largest_n_blocks_summary(df, search_dir)
-
-    print(f"[plot] Gráficos de búsqueda por bloques guardados en: {search_dir}")
-
-
-def plot_largest_n_blocks_summary(df: pd.DataFrame, search_dir: Path) -> None:
+    # resumen para N máximo
     largest_n = int(df["n"].max())
     df_largest = df[df["n"] == largest_n]
 
@@ -297,7 +258,6 @@ def plot_largest_n_blocks_summary(df: pd.DataFrame, search_dir: Path) -> None:
 
         for tree, tree_group in group.groupby("tree"):
             tree_group = tree_group.sort_values("block_index")
-
             plt.plot(
                 tree_group["block_index"],
                 tree_group["avg_search_ns"],
@@ -316,10 +276,11 @@ def plot_largest_n_blocks_summary(df: pd.DataFrame, search_dir: Path) -> None:
         output_path = search_dir / f"busqueda_bloques_resumen_n_max__{scenario}.png"
         save_plot(output_path)
 
+    print(f"[plot] Gráficos por bloques listos.")
+
 
 def plot_sequential_results(sequential_csv: Path, search_dir: Path, insert_dir: Path) -> None:
     df = load_csv_if_exists(sequential_csv)
-
     if df is None:
         return
 
@@ -330,7 +291,6 @@ def plot_sequential_results(sequential_csv: Path, search_dir: Path, insert_dir: 
         "build_time_ns",
         "search_time_ns",
     }
-
     validate_columns(df, required_columns, str(sequential_csv))
 
     df = df.copy()
@@ -338,72 +298,50 @@ def plot_sequential_results(sequential_csv: Path, search_dir: Path, insert_dir: 
     df["avg_search_ns"] = df["search_time_ns"] / df["m"]
     df["build_time_ms"] = df["build_time_ns"] / 1_000_000.0
 
+    # búsqueda total
     plt.figure(figsize=(9, 5))
-
     for tree, tree_group in df.groupby("tree"):
         tree_group = tree_group.sort_values("m")
-
-        plt.plot(
-            tree_group["m"],
-            tree_group["search_time_ms"],
-            marker="o",
-            label=tree,
-        )
+        plt.plot(tree_group["m"], tree_group["search_time_ms"], marker="o", label=tree)
 
     plt.title("Tiempos de búsqueda — Sequential Access Theorem\nTiempo total de búsqueda")
     plt.xlabel("m")
     plt.ylabel("Tiempo total de búsqueda (ms)")
     plt.grid(True, alpha=0.3)
     plt.legend()
-
     save_plot(search_dir / "busqueda_sequential_total.png")
 
+    # búsqueda promedio
     plt.figure(figsize=(9, 5))
-
     for tree, tree_group in df.groupby("tree"):
         tree_group = tree_group.sort_values("m")
-
-        plt.plot(
-            tree_group["m"],
-            tree_group["avg_search_ns"],
-            marker="o",
-            label=tree,
-        )
+        plt.plot(tree_group["m"], tree_group["avg_search_ns"], marker="o", label=tree)
 
     plt.title("Tiempos de búsqueda — Sequential Access Theorem\nPromedio por búsqueda")
     plt.xlabel("m")
     plt.ylabel("Tiempo promedio por búsqueda (ns)")
     plt.grid(True, alpha=0.3)
     plt.legend()
-
     save_plot(search_dir / "busqueda_sequential_promedio.png")
 
+    # construcción
     plt.figure(figsize=(9, 5))
-
     for tree, tree_group in df.groupby("tree"):
         tree_group = tree_group.sort_values("m")
-
-        plt.plot(
-            tree_group["m"],
-            tree_group["build_time_ms"],
-            marker="o",
-            label=tree,
-        )
+        plt.plot(tree_group["m"], tree_group["build_time_ms"], marker="o", label=tree)
 
     plt.title("Tiempos de inserción — Sequential Access Theorem\nTiempo de construcción del árbol")
     plt.xlabel("m")
     plt.ylabel("Tiempo de construcción (ms)")
     plt.grid(True, alpha=0.3)
     plt.legend()
-
     save_plot(insert_dir / "insercion_sequential_construccion.png")
 
-    print("[plot] Gráficos Sequential Access guardados.")
+    print("[plot] Gráficos Sequential listos.")
 
 
 def plot_working_set_results(working_csv: Path, search_dir: Path, insert_dir: Path) -> None:
     df = load_csv_if_exists(working_csv)
-
     if df is None:
         return
 
@@ -415,7 +353,6 @@ def plot_working_set_results(working_csv: Path, search_dir: Path, insert_dir: Pa
         "build_time_ns",
         "search_time_ns",
     }
-
     validate_columns(df, required_columns, str(working_csv))
 
     df = df.copy()
@@ -423,17 +360,11 @@ def plot_working_set_results(working_csv: Path, search_dir: Path, insert_dir: Pa
     df["avg_search_ns"] = df["search_time_ns"] / df["m"]
     df["build_time_ms"] = df["build_time_ns"] / 1_000_000.0
 
+    # búsqueda total
     plt.figure(figsize=(9, 5))
-
     for tree, tree_group in df.groupby("tree"):
         tree_group = tree_group.sort_values("w")
-
-        plt.plot(
-            tree_group["w"],
-            tree_group["search_time_ms"],
-            marker="o",
-            label=tree,
-        )
+        plt.plot(tree_group["w"], tree_group["search_time_ms"], marker="o", label=tree)
 
     plt.title("Tiempos de búsqueda — Working Set Theorem\nTiempo total de búsqueda")
     plt.xlabel("W")
@@ -441,20 +372,13 @@ def plot_working_set_results(working_csv: Path, search_dir: Path, insert_dir: Pa
     plt.xscale("log", base=10)
     plt.grid(True, alpha=0.3)
     plt.legend()
-
     save_plot(search_dir / "busqueda_working_set_total.png")
 
+    # búsqueda promedio
     plt.figure(figsize=(9, 5))
-
     for tree, tree_group in df.groupby("tree"):
         tree_group = tree_group.sort_values("w")
-
-        plt.plot(
-            tree_group["w"],
-            tree_group["avg_search_ns"],
-            marker="o",
-            label=tree,
-        )
+        plt.plot(tree_group["w"], tree_group["avg_search_ns"], marker="o", label=tree)
 
     plt.title("Tiempos de búsqueda — Working Set Theorem\nPromedio por búsqueda")
     plt.xlabel("W")
@@ -462,20 +386,13 @@ def plot_working_set_results(working_csv: Path, search_dir: Path, insert_dir: Pa
     plt.xscale("log", base=10)
     plt.grid(True, alpha=0.3)
     plt.legend()
-
     save_plot(search_dir / "busqueda_working_set_promedio.png")
 
+    # construcción
     plt.figure(figsize=(9, 5))
-
     for tree, tree_group in df.groupby("tree"):
         tree_group = tree_group.sort_values("w")
-
-        plt.plot(
-            tree_group["w"],
-            tree_group["build_time_ms"],
-            marker="o",
-            label=tree,
-        )
+        plt.plot(tree_group["w"], tree_group["build_time_ms"], marker="o", label=tree)
 
     plt.title("Tiempos de inserción — Working Set Theorem\nTiempo de construcción del árbol")
     plt.xlabel("W")
@@ -483,10 +400,9 @@ def plot_working_set_results(working_csv: Path, search_dir: Path, insert_dir: Pa
     plt.xscale("log", base=10)
     plt.grid(True, alpha=0.3)
     plt.legend()
-
     save_plot(insert_dir / "insercion_working_set_construccion.png")
 
-    print("[plot] Gráficos Working Set guardados.")
+    print("[plot] Gráficos Working Set listos.")
 
 
 def main() -> None:
@@ -494,36 +410,11 @@ def main() -> None:
         description="Genera gráficos separados de búsqueda e inserción para AVL vs Splay Tree."
     )
 
-    parser.add_argument(
-        "--base-csv",
-        default="results/base_results.csv",
-        help="Ruta al CSV de resultados base.",
-    )
-
-    parser.add_argument(
-        "--blocks-csv",
-        default="results/base_search_blocks.csv",
-        help="Ruta al CSV de resultados por bloque.",
-    )
-
-    parser.add_argument(
-        "--sequential-csv",
-        default="results/sequential_results.csv",
-        help="Ruta al CSV de Sequential Access.",
-    )
-
-    parser.add_argument(
-        "--working-csv",
-        default="results/working_set_results.csv",
-        help="Ruta al CSV de Working Set.",
-    )
-
-    parser.add_argument(
-        "--out",
-        default="results/plots",
-        help="Carpeta principal donde se guardarán los gráficos.",
-    )
-
+    parser.add_argument("--base-csv", default="results/base_results.csv")
+    parser.add_argument("--blocks-csv", default="results/base_search_blocks.csv")
+    parser.add_argument("--sequential-csv", default="results/sequential_results.csv")
+    parser.add_argument("--working-csv", default="results/working_set_results.csv")
+    parser.add_argument("--out", default="results/plots")
     parser.add_argument(
         "--clean",
         action="store_true",
@@ -543,30 +434,12 @@ def main() -> None:
         ensure_output_dir(search_dir)
         ensure_output_dir(insert_dir)
 
-    plot_base_results(
-        base_csv=Path(args.base_csv),
-        search_dir=search_dir,
-        insert_dir=insert_dir,
-    )
+    plot_base_results(Path(args.base_csv), search_dir, insert_dir)
+    plot_search_blocks(Path(args.blocks_csv), search_dir)
+    plot_sequential_results(Path(args.sequential_csv), search_dir, insert_dir)
+    plot_working_set_results(Path(args.working_csv), search_dir, insert_dir)
 
-    plot_search_blocks(
-        blocks_csv=Path(args.blocks_csv),
-        search_dir=search_dir,
-    )
-
-    plot_sequential_results(
-        sequential_csv=Path(args.sequential_csv),
-        search_dir=search_dir,
-        insert_dir=insert_dir,
-    )
-
-    plot_working_set_results(
-        working_csv=Path(args.working_csv),
-        search_dir=search_dir,
-        insert_dir=insert_dir,
-    )
-
-    print(f"[plot] Proceso terminado.")
+    print("[plot] Proceso terminado.")
     print(f"[plot] Gráficos de búsqueda: {search_dir}")
     print(f"[plot] Gráficos de inserción: {insert_dir}")
 

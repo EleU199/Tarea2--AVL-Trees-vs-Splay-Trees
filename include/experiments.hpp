@@ -24,7 +24,7 @@ using Key = std::uint32_t;
  * Elegimos c = 1 para reducir el costo experimental, manteniéndonos dentro
  * del rango permitido por el enunciado.
  */
-constexpr int C = 10;
+constexpr int C = 1;
 
 /**
  * @brief Parámetro lambda para la distribución sesgada exponencial.
