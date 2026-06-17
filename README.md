@@ -648,33 +648,7 @@ block_index,block_start,block_size,found_count,block_time_ns,block_time_ms,avg_s
 
 ---
 
-## 13. Archivos ignorados por Git
-
-El proyecto no debe subir ejecutables ni resultados generados.
-
-Un `.gitignore` recomendado es:
-
-```gitignore
-# Ejecutables generados
-*.exe
-t2cpp.exe
-
-# Resultados generados por los experimentos
-results/*
-!results/.gitkeep
-```
-
-El archivo:
-
-```text
-results/.gitkeep
-```
-
-se mantiene para que la carpeta `results/` exista en el repositorio aunque su contenido generado esté ignorado.
-
----
-
-## 14. Flujo completo para replicar la tarea
+## 13. Flujo completo para replicar la tarea
 
 Desde cero, el flujo recomendado es:
 
@@ -687,7 +661,7 @@ g++ -std=c++17 -O3 -march=native -DNDEBUG -Wall -Wextra -Iinclude src/main.cpp s
 ### Paso 2: ejecutar experimentos
 
 ```powershell
-.\t2cpp.exe results
+.\t2cpp.exe 
 ```
 
 ### Paso 3: generar gráficos principales
@@ -704,7 +678,7 @@ python scripts/plot_bonus_traversal.py --clean
 
 ---
 
-## 15. Notas sobre reproducibilidad
+## 14. Notas sobre reproducibilidad
 
 - Los datasets se generan pseudoaleatoriamente con semilla fija.
 - Los resultados de tiempo pueden variar según CPU, RAM, sistema operativo, compilador, temperatura, procesos en segundo plano y estado de caché.
