@@ -1,19 +1,20 @@
-CXX = g++
-CXXFLAGS = -std=c++17 -O2 -Wall -Wextra -Iinclude
+CXX := g++
+CXXFLAGS := -std=c++17 -O3 -march=native -DNDEBUG -Wall -Wextra -Iinclude
 
-SRC = src/main.cpp src/experiments.cpp
-OUT = t2cpp
+SRC := $(wildcard src/*.cpp)
+OUT := t2cpp.exe
+
+.PHONY: all run clean debug
 
 all:
 	$(CXX) $(CXXFLAGS) $(SRC) -o $(OUT)
 
 run: all
-	./$(OUT)
+	./$(OUT) results
 
 debug:
 	$(CXX) -std=c++17 -g -Wall -Wextra -Iinclude $(SRC) -o $(OUT)
 
 clean:
-	rm -f $(OUT) $(OUT).exe
-
-.PHONY: all run debug clean
+	del /Q src\*.o 2>NUL
+	del /Q $(OUT) 2>NUL

@@ -90,6 +90,15 @@ public:
      */
     bool has_valid_parents() const;
 
+    /**
+    * @brief Retorna las claves del árbol en recorrido preorden.
+    *
+    * Se usa para el experimento bonus Traversal Conjecture.
+    * Implementación iterativa para evitar problemas de stack en árboles grandes.
+    *
+    * @return Vector con las claves visitadas en preorden.
+    */
+std::vector<Key> preorder_keys() const;
 private:
     static constexpr Index NIL = -1;
 
@@ -357,7 +366,7 @@ inline void SplayTree::splay(Index node) {
         if (grandparent == NIL) {
             // Zig
             if (nodes_[parent].left == node) {
-                rotate_right(parent);
+                rotate_right(parent); 
             }
             // Zag
             else {
@@ -472,4 +481,34 @@ inline bool SplayTree::has_valid_parents_rec(Index node, Index expected_parent) 
 
     return has_valid_parents_rec(current.left, node) &&
            has_valid_parents_rec(current.right, node);
+}
+
+inline std::vector<SplayTree::Key> SplayTree::preorder_keys() const {
+    std::vector<Key> sequence;
+    sequence.reserve(nodes_.size());
+
+    if (root_ == NIL) {
+        return sequence;
+    }
+
+    std::vector<Index> stack;
+    stack.reserve(nodes_.size());
+    stack.push_back(root_);
+
+    while (!stack.empty()) {
+        Index node = stack.back();
+        stack.pop_back();
+
+        sequence.push_back(nodes_[node].key);
+
+        if (nodes_[node].right != NIL) {
+            stack.push_back(nodes_[node].right);
+        }
+
+        if (nodes_[node].left != NIL) {
+            stack.push_back(nodes_[node].left);
+        }
+    }
+
+    return sequence;
 }
