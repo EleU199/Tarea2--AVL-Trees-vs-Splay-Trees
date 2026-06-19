@@ -376,7 +376,7 @@ Si se usa un entorno virtual, activarlo antes de ejecutar los scripts.
 Todos los comandos deben ejecutarse desde la raíz del proyecto:
 
 ```text
-t2cpp/
+Tarea2--AVL-Trees-vs-Splay-Trees/
 ```
 
 ### 7.1. Compilación optimizada recomendada
@@ -490,7 +490,9 @@ Los scripts de graficación se encuentran en:
 
 ```text
 scripts/plot_results.py
+scripts/plot_search_index_selected_n.py
 scripts/plot_bonus_traversal.py
+
 ```
 
 ### 10.1. Graficar experimentos principales
@@ -510,6 +512,7 @@ Los gráficos principales se guardan en:
 ```text
 results/plots/tiempos_busqueda/
 results/plots/tiempos_insercion/
+results/plots/busqueda_por_indice/
 ```
 
 ### 10.2. Graficar bonus
@@ -668,6 +671,8 @@ g++ -std=c++17 -O3 -march=native -DNDEBUG -Wall -Wextra -Iinclude src/main.cpp s
 
 ```powershell
 python scripts/plot_results.py --clean
+python scripts/plot_search_index_selected_n.py --clean
+
 ```
 
 ### Paso 4: generar gráficos del bonus
@@ -684,7 +689,7 @@ python scripts/plot_bonus_traversal.py --clean
 - Los resultados de tiempo pueden variar según CPU, RAM, sistema operativo, compilador, temperatura, procesos en segundo plano y estado de caché.
 - Las mediciones se hacen en nanosegundos usando `std::chrono::steady_clock`.
 - Para evitar que el overhead del reloj afecte la medición de cada búsqueda individual, se miden bloques de búsquedas y se reporta el promedio por bloque.
-- En los experimentos grandes, especialmente Working Set y Traversal Conjecture, el tiempo de ejecución puede ser considerable. En el equipo usado para los resultados finales, la batería grande puede tardar un par de horas.(o más en máquinas antiguas)
+- En los experimentos grandes, especialmente Working Set y Traversal Conjecture, el tiempo de ejecución puede ser considerable. En el equipo usado para los resultados finales, la ejecución principal puede tardar un par de horas.(o más en máquinas antiguas)
 - Las funciones de debugging como verificación de invariantes no deben ejecutarse dentro de los loops de medición grandes.
 - Los gráficos se generan desde los CSV ya producidos por los ejecutables, por lo que no es necesario repetir los experimentos para volver a graficar.Esto permite modificar los gráficos desde los archivos `.py`.
 -### Uso del Makefile
